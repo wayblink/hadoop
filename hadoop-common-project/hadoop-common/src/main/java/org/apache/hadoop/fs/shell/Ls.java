@@ -262,8 +262,8 @@ class Ls extends FsCommand {
         (displayPolicy ? contentSummary.getErasureCodingPolicy() : "-"),
         formatSize(stat.getLen()),
         dateFormat.format(new Date(isUseAtime()
-                ? stat.getAccessTime()
-                : stat.getModificationTime())),
+            ? stat.getAccessTime()
+            : stat.getModificationTime())),
         isHideNonPrintable() ? new PrintableString(item.toString()) : item);
     out.println(line);
   }
