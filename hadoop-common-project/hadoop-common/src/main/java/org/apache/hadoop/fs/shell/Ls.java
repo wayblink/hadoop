@@ -62,7 +62,7 @@ class Ls extends FsCommand {
       OPTION_DIRECTORY + "] [-" + OPTION_HUMAN + "] [-" +
       OPTION_HIDENONPRINTABLE + "] [-" + OPTION_RECURSIVE + "] [-" +
       OPTION_MTIME + "] [-" + OPTION_SIZE + "] [-" + OPTION_REVERSE + "] [-" +
-      OPTION_ATIME + "] [-" + OPTION_ECPOLICY + "] [-" +"] [<path> ...]";
+      OPTION_ATIME + "] [-" + OPTION_ECPOLICY +"] [<path> ...]";
 
   public static final String DESCRIPTION =
       "List the contents that match the specified file pattern. If " +
@@ -94,7 +94,7 @@ class Ls extends FsCommand {
           "  -" + OPTION_ATIME +
           "  Use time of last access instead of modification for\n" +
           "      display and sorting."+
-          "  -"+ OPTION_ECPOLICY +
+          "  -" + OPTION_ECPOLICY +
           "  Display the erasure coding policy of files and directories only"
           ;
 
@@ -135,7 +135,7 @@ class Ls extends FsCommand {
     CommandFormat cf = new CommandFormat(0, Integer.MAX_VALUE,
         OPTION_PATHONLY, OPTION_DIRECTORY, OPTION_HUMAN,
         OPTION_HIDENONPRINTABLE, OPTION_RECURSIVE, OPTION_REVERSE,
-        OPTION_MTIME, OPTION_SIZE, OPTION_ATIME,OPTION_ECPOLICY);
+        OPTION_MTIME, OPTION_SIZE, OPTION_ATIME, OPTION_ECPOLICY);
     cf.parse(args);
     pathOnly = cf.getOpt(OPTION_PATHONLY);
     dirRecurse = !cf.getOpt(OPTION_DIRECTORY);
@@ -259,7 +259,7 @@ class Ls extends FsCommand {
         (stat.isFile() ? stat.getReplication() : "-"),
         stat.getOwner(),
         stat.getGroup(),
-        (displayPolicy ? contentSummary.getErasureCodingPolicy() : "-"),
+        (displayPolicy ? contentSummary.getErasureCodingPolicy() : ""),
         formatSize(stat.getLen()),
         dateFormat.format(new Date(isUseAtime()
             ? stat.getAccessTime()
