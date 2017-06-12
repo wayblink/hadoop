@@ -95,7 +95,7 @@ class Ls extends FsCommand {
           "  Use time of last access instead of modification for\n" +
           "      display and sorting."+
           "  -" + OPTION_ECPOLICY +
-          "  Display the erasure coding policy of files and directories only"
+          "  Display the erasure coding policy of files and directories only.\n"
           ;
 
   protected final SimpleDateFormat dateFormat =
@@ -252,20 +252,35 @@ class Ls extends FsCommand {
       return;
     }
     FileStatus stat = item.stat;
-    ContentSummary contentSummary = item.fs.getContentSummary(item.path);
-    String line = String.format(lineFormat,
-        (stat.isDirectory() ? "d" : "-"),
-        stat.getPermission() + (stat.getPermission().getAclBit() ? "+" : " "),
-        (stat.isFile() ? stat.getReplication() : "-"),
-        stat.getOwner(),
-        stat.getGroup(),
-        (displayPolicy ? contentSummary.getErasureCodingPolicy() : ""),
-        formatSize(stat.getLen()),
-        dateFormat.format(new Date(isUseAtime()
-            ? stat.getAccessTime()
-            : stat.getModificationTime())),
-        isHideNonPrintable() ? new PrintableString(item.toString()) : item);
-    out.println(line);
+    if (displayPolicy) {
+      ContentSummary contentSummary = item.fs.getContentSummary(item.path);
+      String line = String.format(lineFormat,
+          (stat.isDirectory() ? "d" : "-"),
+          stat.getPermission() + (stat.getPermission().getAclBit() ? "+" : " "),
+          (stat.isFile() ? stat.getReplication() : "-"),
+          stat.getOwner(),
+          stat.getGroup(),
+          contentSummary.getErasureCodingPolicy(),
+          formatSize(stat.getLen()),
+          dateFormat.format(new Date(isUseAtime()
+              ? stat.getAccessTime()
+              : stat.getModificationTime())),
+          isHideNonPrintable() ? new PrintableString(item.toString()) : item);
+      out.println(line);
+    } else {
+      String line = String.format(lineFormat,
+          (stat.isDirectory() ? "d" : "-"),
+          stat.getPermission() + (stat.getPermission().getAclBit() ? "+" : " "),
+          (stat.isFile() ? stat.getReplication() : "-"),
+          stat.getOwner(),
+          stat.getGroup(),
+          formatSize(stat.getLen()),
+          dateFormat.format(new Date(isUseAtime()
+                  ? stat.getAccessTime()
+                  : stat.getModificationTime())),
+          isHideNonPrintable() ? new PrintableString(item.toString()) : item);
+      out.println(line);
+    }
   }
 
   /**
