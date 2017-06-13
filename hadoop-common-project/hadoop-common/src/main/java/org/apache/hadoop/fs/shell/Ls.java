@@ -93,9 +93,9 @@ class Ls extends FsCommand {
           "  Reverse the order of the sort.\n" +
           "  -" + OPTION_ATIME +
           "  Use time of last access instead of modification for\n" +
-          "      display and sorting."+
+          "      display and sorting.\n"+
           "  -" + OPTION_ECPOLICY +
-          "  Display the erasure coding policy of files and directories only.\n"
+          "  Display the erasure coding policy of files and directories.\n"
           ;
 
   protected final SimpleDateFormat dateFormat =
