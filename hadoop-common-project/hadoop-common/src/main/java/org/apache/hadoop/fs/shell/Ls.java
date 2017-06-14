@@ -95,8 +95,7 @@ class Ls extends FsCommand {
           "  Use time of last access instead of modification for\n" +
           "      display and sorting.\n"+
           "  -" + OPTION_ECPOLICY +
-          "  Display the erasure coding policy of files and directories.\n"
-          ;
+          "  Display the erasure coding policy of files and directories.\n";
 
   protected final SimpleDateFormat dateFormat =
     new SimpleDateFormat("yyyy-MM-dd HH:mm");
