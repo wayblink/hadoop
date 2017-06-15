@@ -59,6 +59,9 @@ public class TestNativeCrc32 {
     Collection<Object[]> params = new ArrayList<Object[]>(2);
     params.add(new Object[] { DataChecksum.Type.CRC32 });
     params.add(new Object[] { DataChecksum.Type.CRC32C });
+    params.add(new Object[] { DataChecksum.Type.CRC32_ISCSI });
+    params.add(new Object[] { DataChecksum.Type.CRC32_IEEE });
+    params.add(new Object[] { DataChecksum.Type.CRC64 });
     return params;
   }
 

@@ -295,4 +295,6 @@ add_executable(test_bulk_crc32
     ${SRC}/util/bulk_crc32.c
     ${BULK_CRC_ARCH_SOURCE_FIlE}
     ${TST}/util/test_bulk_crc32.c
+    ${SRC}/util/NativeCrc32.c
 )
+target_link_libraries(test_bulk_crc32 ${CMAKE_DL_LIBS})

@@ -50,11 +50,23 @@ static void pipelined_crc32c_sb8(uint32_t *crc1, uint32_t *crc2, uint32_t *crc3,
 static void pipelined_crc32_zlib_sb8(uint32_t *crc1, uint32_t *crc2, uint32_t *crc3,
                                  const uint8_t *p_buf, size_t block_size, int num_blocks);
 
+// ISAL pipeline function
+static void pipelined_crc32_ieee(uint32_t *crc1, uint32_t *crc2, uint32_t *crc3,
+                                 const uint8_t *p_buf, size_t block_size, int num_blocks);
+static void pipelined_crc32_iscsi(uint32_t *crc1, uint32_t *crc2, uint32_t *crc3,
+                                 const uint8_t *p_buf, size_t block_size, int num_blocks);
+static void pipelined_crc64(uint32_t *crc1, uint32_t *crc2, uint32_t *crc3,
+                                  const uint8_t *p_buf, size_t block_size, int num_blocks);
+
 // Satically initialise the function pointers to the software versions
 // If a HW implementation is available they will subsequently be initialised in the dynamic
 // initialisers to point to the HW routines.
 crc_pipelined_func_t pipelined_crc32c_func = pipelined_crc32c_sb8;
 crc_pipelined_func_t pipelined_crc32_zlib_func = pipelined_crc32_zlib_sb8;
+// ISAL pipeline function
+crc_pipelined_func_t pipelined_crc32_ieee_func = pipelined_crc32_ieee;
+crc_pipelined_func_t pipelined_crc32_iscsi_func=pipelined_crc32_iscsi;
+crc_pipelined_func_t pipelined_crc64_isal_func=pipelined_crc64;
 
 static inline int store_or_verify(uint32_t *sums, uint32_t crc,
                                    int is_verify) {
@@ -78,12 +90,52 @@ int bulk_crc(const uint8_t *data, size_t data_len,
   int remainder = data_len % bytes_per_checksum;
   uint32_t crc;
   crc_pipelined_func_t crc_pipelined_func;
+  void *handle=dlopen(HADOOP_ISAL_LIBRARY,RTLD_LAZY|RTLD_GLOBAL);
   switch (checksum_type) {
     case CRC32_ZLIB_POLYNOMIAL:
       crc_pipelined_func = pipelined_crc32_zlib_func;
       break;
     case CRC32C_POLYNOMIAL:
       crc_pipelined_func = pipelined_crc32c_func;
+      break;
+    case CRC32_IEEE:
+      crc_pipelined_func = pipelined_crc32_ieee_func;
+      //         if(isal_crc32_ieee_pointer==NULL){
+      //         void *handle=dlopen(HADOOP_ISAL_LIBRARY,RTLD_LAZY|RTLD_GLOBAL);
+      isal_crc32_ieee_pointer=dlsym(handle,"crc32_ieee");
+      //         }
+      break;
+    case CRC32_ISCSI:
+      crc_pipelined_func = pipelined_crc32_iscsi_func;
+      isal_crc32_iscsi_pointer=dlsym(handle,"crc32_iscsi");
+      break;
+    case CRC64_ISAL:
+      crc_pipelined_func = pipelined_crc64_isal_func;
+      isal_crc64_pointer=dlsym(handle,"crc64_ecma_refl");
+      break;
+    case CRC64_ECMA_REFL:
+      crc_pipelined_func = pipelined_crc64_isal_func;
+      isal_crc64_pointer=dlsym(handle,"crc64_ecma_refl");
+      break;
+    case CRC64_ECMA_NORM:
+      crc_pipelined_func = pipelined_crc64_isal_func;
+      isal_crc64_pointer=dlsym(handle,"crc64_ecma_norm");
+      break;
+    case CRC64_ISO_REFL:
+      crc_pipelined_func = pipelined_crc64_isal_func;
+      isal_crc64_pointer=dlsym(handle,"crc64_iso_refl");
+      break;
+    case CRC64_ISO_NORM:
+      crc_pipelined_func = pipelined_crc64_isal_func;
+      isal_crc64_pointer=dlsym(handle,"crc64_iso_norm");
+      break;
+    case CRC64_JONES_REFL:
+      crc_pipelined_func = pipelined_crc64_isal_func;
+      isal_crc64_pointer=dlsym(handle,"crc64_jones_refl");
+      break;
+    case CRC64_JONES_NORM:
+      crc_pipelined_func = pipelined_crc64_isal_func;
+      isal_crc64_pointer=dlsym(handle,"crc64_jones_norm");
       break;
     default:
       return is_verify ? INVALID_CHECKSUM_TYPE : -EINVAL;
@@ -241,4 +293,37 @@ static void pipelined_crc32_zlib_sb8(uint32_t *crc1, uint32_t *crc2, uint32_t *c
     *crc2 = crc32_zlib_sb8(*crc2, p_buf+block_size, block_size);
   if (num_blocks >= 3)
     *crc3 = crc32_zlib_sb8(*crc3, p_buf+2*block_size, block_size);
+}
+
+static void pipelined_crc32_ieee(uint32_t *crc1, uint32_t *crc2, uint32_t *crc3,
+                                      const uint8_t *p_buf, size_t block_size, int num_blocks) {
+   uint64_t bsize=block_size;
+   assert(num_blocks >= 1 && num_blocks <=3 && "invalid num_blocks");
+     *crc1 = isal_crc32_ieee_pointer(*crc1, p_buf, bsize);
+   if (num_blocks >= 2)
+     *crc2 = isal_crc32_ieee_pointer(*crc2, p_buf+block_size, bsize);
+   if (num_blocks >= 3)
+     *crc3 = isal_crc32_ieee_pointer(*crc3, p_buf+2*block_size, bsize);
+}
+
+static void pipelined_crc32_iscsi(uint32_t *crc1, uint32_t *crc2, uint32_t *crc3,
+                                        const uint8_t *p_buf, size_t block_size, int num_blocks) {
+     assert(num_blocks >= 1 && num_blocks <=3 && "invalid num_blocks");
+     unsigned char *buffer=p_buf;
+       *crc1 = isal_crc32_iscsi_pointer( buffer, block_size,*crc1);
+     if (num_blocks >= 2)
+       *crc2 = isal_crc32_iscsi_pointer( buffer+block_size, block_size,*crc2);
+     if (num_blocks >= 3)
+       *crc3 = isal_crc32_iscsi_pointer( buffer+2*block_size, block_size,*crc3);
+}
+
+static void pipelined_crc64(uint32_t *crc1, uint32_t *crc2, uint32_t *crc3,
+                                        const uint8_t *p_buf, size_t block_size, int num_blocks) {
+   uint64_t bsize=block_size;
+   assert(num_blocks >= 1 && num_blocks <=3 && "invalid num_blocks");
+     *crc1 = isal_crc64_pointer(*crc1, p_buf, bsize);
+   if (num_blocks >= 2)
+     *crc2 = isal_crc64_pointer(*crc2, p_buf+block_size, bsize);
+   if (num_blocks >= 3)
+     *crc3 = isal_crc64_pointer(*crc3, p_buf+2*block_size, bsize);
 }

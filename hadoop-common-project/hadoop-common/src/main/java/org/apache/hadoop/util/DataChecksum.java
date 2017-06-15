@@ -43,12 +43,19 @@ public class DataChecksum implements Checksum {
   public static final int CHECKSUM_CRC32C  = 2;
   public static final int CHECKSUM_DEFAULT = 3; 
   public static final int CHECKSUM_MIXED   = 4;
- 
+  //isa-l
+  public static final int CHECKSUM_CRC32_ISCSI = 11;
+  public static final int CHECKSUM_CRC32_IEEE = 12;
+  public static final int CHECKSUM_CRC64 = 13;
   /** The checksum types */
   public enum Type {
     NULL  (CHECKSUM_NULL, 0),
     CRC32 (CHECKSUM_CRC32, 4),
     CRC32C(CHECKSUM_CRC32C, 4),
+    //isa-l
+    CRC32_IEEE(CHECKSUM_CRC32_IEEE, 4),
+    CRC32_ISCSI(CHECKSUM_CRC32_ISCSI, 4),
+    CRC64(CHECKSUM_CRC64,4),
     DEFAULT(CHECKSUM_DEFAULT, 0), // This cannot be used to create DataChecksum
     MIXED (CHECKSUM_MIXED, 0); // This cannot be used to create DataChecksum
 
@@ -89,6 +96,12 @@ public class DataChecksum implements Checksum {
     case CRC32 :
       return new DataChecksum(type, newCrc32(), bytesPerChecksum );
     case CRC32C:
+      return new DataChecksum(type, new PureJavaCrc32C(), bytesPerChecksum);
+    case CRC32_IEEE:
+      return new DataChecksum(type, new PureJavaCrc32C(), bytesPerChecksum);
+    case CRC32_ISCSI:
+      return new DataChecksum(type, new PureJavaCrc32C(), bytesPerChecksum);
+    case CRC64:
       return new DataChecksum(type, new PureJavaCrc32C(), bytesPerChecksum);
     default:
       return null;  

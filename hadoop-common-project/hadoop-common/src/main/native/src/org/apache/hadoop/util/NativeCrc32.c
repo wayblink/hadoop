@@ -110,6 +110,12 @@ static int convert_java_crc_type(JNIEnv *env, jint crc_type) {
       return CRC32_ZLIB_POLYNOMIAL;
     case org_apache_hadoop_util_NativeCrc32_CHECKSUM_CRC32C:
       return CRC32C_POLYNOMIAL;
+    case org_apache_hadoop_util_NativeCrc32_CHECKSUM_CRC32_IEEE:
+      return CRC32_IEEE;
+    case org_apache_hadoop_util_NativeCrc32_CHECKSUM_CRC32_ISCSI:
+      return CRC32_ISCSI;
+    case org_apache_hadoop_util_NativeCrc32_CHECKSUM_CRC64:
+      return CRC64_ISAL;
     default:
       THROW(env, "java/lang/IllegalArgumentException",
         "Invalid checksum type");

@@ -140,4 +140,8 @@ class NativeCrc32 {
   // and make them available in the native code header.
   public static final int CHECKSUM_CRC32 = DataChecksum.CHECKSUM_CRC32;
   public static final int CHECKSUM_CRC32C = DataChecksum.CHECKSUM_CRC32C;
+  //isa-l CRC algorithm
+  public static final int CHECKSUM_CRC32_IEEE = DataChecksum.CHECKSUM_CRC32_IEEE;
+  public static final int CHECKSUM_CRC32_ISCSI = DataChecksum.CHECKSUM_CRC32_ISCSI;
+  public static final int CHECKSUM_CRC64 = DataChecksum.CHECKSUM_CRC64;
 }

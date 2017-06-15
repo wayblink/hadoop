@@ -28,6 +28,17 @@
 #define CRC32C_POLYNOMIAL 1
 #define CRC32_ZLIB_POLYNOMIAL 2
 
+// Constants for ISA-L CRC algorithms
+#define CRC32_ISCSI 11
+#define CRC32_IEEE 12
+#define CRC64_ISAL 13
+#define CRC64_ECMA_REFL 14
+#define CRC64_ECMA_NORM 15
+#define CRC64_ISO_REFL 16
+#define CRC64_ISO_NORM 17
+#define CRC64_JONES_NORM 18
+#define CRC64_JONES_REFL 19
+
 // Return codes for bulk_verify_crc
 #define CHECKSUMS_VALID 0
 #define INVALID_CHECKSUM_DETECTED -1
@@ -69,5 +80,13 @@ extern int bulk_crc(const uint8_t *data, size_t data_len,
     uint32_t *sums, int checksum_type,
     int bytes_per_checksum,
     crc32_error_t *error_info);
+
+/**
+ * Function pointer to support ISA-L CRC implements
+ *
+ */
+uint32_t  (*isal_crc32_ieee_pointer)(uint32_t init_crc,const unsigned char *buf,uint64_t len);
+unsigned int (*isal_crc32_iscsi_pointer)(unsigned char *buffer, int len, unsigned int crc_init);
+uint64_t (*isal_crc64_pointer)(uint64_t seed, const uint8_t * buf, uint64_t len);
 
 #endif
